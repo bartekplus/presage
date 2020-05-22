@@ -544,3 +544,38 @@ presage_error_code_t presage_version (presage_t prsg, char** result)
 	*result = alloc_c_str (prsg->presage_object->version ());
     );
 }
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+// https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
+// Binding code
+EMSCRIPTEN_BINDINGS(Presage) {
+  emscripten::class_<Presage>("Presage")
+    .constructor<PresageCallback *, std::string>()
+    .function("predict", (std::vector<std::string> (Presage::*)()) &Presage::predict)
+    ;
+
+  // register bindings for std::vector<int> and std::map<int, std::string>.
+  emscripten::register_vector<std::string>("vector<std::string>");
+}
+
+
+// Abstract methods
+struct PresageCallbackWrapper : public emscripten::wrapper<PresageCallback> {
+    EMSCRIPTEN_WRAPPER(PresageCallbackWrapper);
+    std::string get_past_stream() const {
+        return call<std::string>("get_past_stream");
+    }
+    std::string get_future_stream() const {
+        return call<std::string>("get_future_stream");
+    }
+};
+
+EMSCRIPTEN_BINDINGS(presageCallback) {
+    emscripten::class_<PresageCallback>("PresageCallback")
+        .function("get_past_stream", &PresageCallback::get_past_stream, emscripten::pure_virtual())
+        .function("get_future_stream", &PresageCallback::get_future_stream, emscripten::pure_virtual())
+        .allow_subclass<PresageCallbackWrapper>("PresageCallbackWrapper")
+        ;
+}
+#endif

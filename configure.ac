@@ -221,8 +221,15 @@ fi
 dnl ==================
 dnl Checks for HUNSPELL
 dnl ==================
-PKG_CHECK_MODULES([HUNSPELL], [hunspell >= 1.5.1])
-
+AC_CHECK_HEADERS([hunspell/hunspell.hxx],
+                 [have_hunspell_header=true],
+                 [AC_MSG_WARN([Hunspell header file not found.])],
+                 [])
+AM_CONDITIONAL([HAVE_HUNSPELL], [test "x$have_hunspell_header" = "xtrue"])
+if test "x$have_hunspell_header" = "xtrue"
+then
+AC_SUBST([HUNSPELL_LIBS], ["-lhunspell"])
+fi
 
 dnl ==================
 dnl Checks for CppUnit

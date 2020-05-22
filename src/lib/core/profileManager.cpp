@@ -220,8 +220,8 @@ std::string ProfileManager::get_user_home_dir() const
     struct passwd *my_passwd;
     
     me = getuid ();
-    my_passwd = getpwuid (me);
-    if (!my_passwd) {
+    my_passwd = NULL;// getpwuid (me);
+    if (my_passwd) {
         // got passwd for user
         // read home dir from passwd struct
 	result = my_passwd->pw_dir;

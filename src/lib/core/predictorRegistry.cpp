@@ -27,7 +27,9 @@
 #ifdef USE_SQLITE
 # include "predictors/smoothedNgramPredictor.h"
 #endif
+#ifdef HAVE_MARISA_H
 #include "predictors/smoothedNgramTriePredictor.h"
+#endif
 #include "predictors/ARPAPredictor.h"
 #include "predictors/abbreviationExpansionPredictor.h"
 #include "predictors/dummyPredictor.h"
@@ -164,17 +166,19 @@ void PredictorRegistry::addPredictor(const std::string& predictorName)
 	else if (predictor_class == "HunspellPredictor" )
 	{
 	    predictor = new HunspellPredictor(config, contextTracker, name);
-#ifdef USE_SQLITE
 	}
+#ifdef USE_SQLITE
 	else if (predictor_class == "SmoothedNgramPredictor") 
 	{
 	    predictor = new SmoothedNgramPredictor(config, contextTracker, name);
-#endif
 	}
+#endif
+#ifdef HAVE_MARISA_H
 	else if (predictor_class == "SmoothedNgramTriePredictor") 
 	{
           predictor = new SmoothedNgramTriePredictor(config, contextTracker, name);
 	}
+#endif
 	else if (predictor_class == "RecencyPredictor") 
 	{
 	    predictor = new RecencyPredictor(config, contextTracker, name);

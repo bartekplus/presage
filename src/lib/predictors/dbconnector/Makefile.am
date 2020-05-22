@@ -29,8 +29,6 @@ noinst_LTLIBRARIES =	libdbconnector.la
 
 libdbconnector_la_SOURCES =	databaseConnector.cpp             \
 				databaseConnector.h               \
-				trieDatabaseConnector.h    \
-				trieDatabaseConnector.cpp  \
 				sqliteDatabaseConnector.cpp       \
 				sqliteDatabaseConnector.h         
 libdbconnector_la_LIBADD +=	$(SQLITE_LIBS) 

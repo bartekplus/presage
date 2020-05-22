@@ -51,9 +51,10 @@ libpredictors_la_LIBADD =	$(PREDICTORS) $(DBCONNECTOR)
 libpredictor_la_SOURCES =	predictor.cpp predictor.h
 
 libSmoothedNgramPredictor_la_SOURCES =	smoothedNgramPredictor.cpp \
-					smoothedNgramPredictor.h   \
-					smoothedNgramTriePredictor.cpp \
-					smoothedNgramTriePredictor.h
+					smoothedNgramPredictor.h
+
+#					smoothedNgramTriePredictor.cpp \
+#					smoothedNgramTriePredictor.h
 
 libAbbreviationExpansionPredictor_la_SOURCES =	abbreviationExpansionPredictor.h   \
 						abbreviationExpansionPredictor.cpp 
@@ -61,8 +62,10 @@ libAbbreviationExpansionPredictor_la_SOURCES =	abbreviationExpansionPredictor.h 
 libDictionaryPredictor_la_SOURCES =	dictionaryPredictor.cpp \
 					dictionaryPredictor.h      
 
+if HAVE_HUNSPELL
 libHunspellPredictor_la_SOURCES =	hunspellPredictor.cpp \
 					hunspellPredictor.h      
+endif
 
 libHunspellPredictor_la_LIBADD =	$(HUNSPELL_LIBS)
 
