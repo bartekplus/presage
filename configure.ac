@@ -180,18 +180,18 @@ AC_CHECK_LIB([sqlite3],
              [SQLITE_LIBS="-lsqlite3" && \
               AC_CHECK_HEADERS([sqlite3.h],
                                [have_sqlite=yes && AC_MSG_NOTICE([using sqlite 3])],
-                               [AC_MSG_ERROR([Found sqlite3 library, but cannot find matching sqlite3.h header.])],
+                               [AC_MSG_WARN([Found sqlite3 library, but cannot find matching sqlite3.h header.])],
                                [])],
 	     [AC_CHECK_LIB([sqlite],
                            [sqlite_open],
                            [SQLITE_LIBS="-lsqlite" && \
                             AC_CHECK_HEADERS([sqlite.h],
                                              [have_sqlite=yes && AC_MSG_NOTICE([using sqlite 2])],
-                                             [AC_MSG_ERROR([Found sqlite 2 library, but cannot find matching sqlite.h header.])],
+                                             [AC_MSG_WARN([Found sqlite 2 library, but cannot find matching sqlite.h header.])],
                                              [])],
                            [SQLITE_LIBS= && \
 			    have_sqlite=no && \
-			    AC_MSG_ERROR([SQLite library not found. SQLite can be obtained from http://sqlite.org.])])])
+			    AC_MSG_WARN([SQLite library not found. SQLite can be obtained from http://sqlite.org.])])])
 AC_SUBST([SQLITE_LIBS], ["$SQLITE_LIBS"])
 fi
 
