@@ -217,10 +217,12 @@ std::string ProfileManager::get_user_home_dir() const
 #else
 # ifdef HAVE_PWD_H
     uid_t me;
-    struct passwd *my_passwd;
+    struct passwd *my_passwd = NULL;
     
     me = getuid ();
-    my_passwd = NULL;// getpwuid (me);
+#ifndef EMSCRIPTEN
+    my_passwd = getpwuid (me);
+#endif
     if (my_passwd) {
         // got passwd for user
         // read home dir from passwd struct
