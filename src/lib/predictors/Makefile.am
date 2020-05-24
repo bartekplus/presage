@@ -53,8 +53,11 @@ libpredictor_la_SOURCES =	predictor.cpp predictor.h
 libSmoothedNgramPredictor_la_SOURCES =	smoothedNgramPredictor.cpp \
 					smoothedNgramPredictor.h
 
-#					smoothedNgramTriePredictor.cpp \
-#					smoothedNgramTriePredictor.h
+if HAVE_MARISA
+libSmoothedNgramPredictor_la_SOURCES += \
+					smoothedNgramTriePredictor.cpp \
+					smoothedNgramTriePredictor.h
+endif
 
 libAbbreviationExpansionPredictor_la_SOURCES =	abbreviationExpansionPredictor.h   \
 						abbreviationExpansionPredictor.cpp 
