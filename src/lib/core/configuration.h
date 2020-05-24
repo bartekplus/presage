@@ -39,6 +39,8 @@ public:
     ~Configuration();
 
     Variable* find (const std::string& variable) const;
+    Variable* find (const std::string& variable, const Variable& defaultValue) const;
+
     void insert (const std::string& variable, const std::string& value);
     void remove (const std::string& variable);
 

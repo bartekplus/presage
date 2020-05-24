@@ -58,6 +58,18 @@ Variable* Configuration::find(const std::string& variable) const
     return it->second;
 }
 
+Variable* Configuration::find(const std::string& variable, const Variable& defaultValue) const
+{
+    std::map<std::string, Variable*>::const_iterator it = configuration->find (variable);
+    if (it == configuration->end()) {
+        Variable* var = new Variable (defaultValue);
+        configuration->insert (std::pair<std::string, Variable*> (variable, var));
+        return var;
+    }
+
+    return it->second;
+}
+
 Variable* Configuration::operator[](const std::string& variable) const
 {
     return find(variable);
