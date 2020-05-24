@@ -40,6 +40,14 @@ DBCONNECTOR = \
 	dbconnector/libdbconnector.la
 endif
 
+if HAVE_MARISA
+PREDICTORS += \
+	libSmoothedNgramTriePredictor.la
+
+DBCONNECTOR = \
+	dbconnector/libdbconnector.la
+endif
+
 if HAVE_HUNSPELL
 PREDICTORS += \
 	libHunspellPredictor.la
@@ -58,7 +66,7 @@ libSmoothedNgramPredictor_la_SOURCES =	smoothedNgramPredictor.cpp \
 					smoothedNgramPredictor.h
 
 if HAVE_MARISA
-libSmoothedNgramPredictor_la_SOURCES += \
+libSmoothedNgramTriePredictor_la_SOURCES = \
 					smoothedNgramTriePredictor.cpp \
 					smoothedNgramTriePredictor.h
 endif
