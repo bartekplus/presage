@@ -232,6 +232,20 @@ AC_SUBST([HUNSPELL_LIBS], ["-lhunspell"])
 fi
 
 dnl ==================
+dnl Checks for ASPELL
+dnl ==================
+AC_CHECK_HEADERS([aspell.h],
+                 [have_aspell_header=true],
+                 [AC_MSG_WARN([Apell header file not found.])],
+                 [])
+AM_CONDITIONAL([HAVE_ASPELL], [test "x$have_aspell_header" = "xtrue"])
+if test "x$have_aspell_header" = "xtrue"
+then
+AC_SUBST([ASPELL_LIBS], ["-laspell"])
+fi
+
+
+dnl ==================
 dnl Checks for CppUnit
 dnl ==================
 AM_PATH_CPPUNIT([1.9.6],

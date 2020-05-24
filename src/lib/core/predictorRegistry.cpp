@@ -37,6 +37,9 @@
 #ifdef HAVE_HUNSPELL_HUNSPELL_HXX
 #include "predictors/hunspellPredictor.h"
 #endif
+#ifdef HAVE_ASPELL_H
+#include "predictors/aspellPredictor.h"
+#endif
 #include "predictors/recencyPredictor.h"
 #include "predictors/dejavuPredictor.h"
 
@@ -169,6 +172,12 @@ void PredictorRegistry::addPredictor(const std::string& predictorName)
 	else if (predictor_class == "HunspellPredictor" )
 	{
 	    predictor = new HunspellPredictor(config, contextTracker, name);
+	}
+#endif
+#ifdef HAVE_ASPELL_H
+	else if (predictor_class == "AspellPredictor" )
+	{
+	    predictor = new AspellPredictor(config, contextTracker, name);
 	}
 #endif
 #ifdef USE_SQLITE

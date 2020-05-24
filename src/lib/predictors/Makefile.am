@@ -53,6 +53,11 @@ PREDICTORS += \
 	libHunspellPredictor.la
 endif
 
+if HAVE_ASPELL
+PREDICTORS += \
+	libAspellPredictor.la
+endif
+
 noinst_LTLIBRARIES = \
 	libpredictors.la \
 	$(PREDICTORS)
@@ -82,6 +87,13 @@ libHunspellPredictor_la_SOURCES =	hunspellPredictor.cpp \
 					hunspellPredictor.h      
 
 libHunspellPredictor_la_LIBADD =	$(HUNSPELL_LIBS)
+endif
+
+if HAVE_ASPELL
+libAspellPredictor_la_SOURCES =	aspellPredictor.cpp \
+					aspellPredictor.h
+
+libAspellPredictor_la_LIBADD =	$(ASPELL_LIBS)
 endif
 
 libDummyPredictor_la_SOURCES =		dummyPredictor.cpp \
