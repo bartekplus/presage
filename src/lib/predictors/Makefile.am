@@ -27,7 +27,6 @@ PREDICTORS = \
 	libpredictor.la \
 	libDummyPredictor.la \
 	libDictionaryPredictor.la \
-	libHunspellPredictor.la \
 	libAbbreviationExpansionPredictor.la \
 	libRecencyPredictor.la \
 	libDejavuPredictor.la \
@@ -39,6 +38,11 @@ PREDICTORS += \
 
 DBCONNECTOR = \
 	dbconnector/libdbconnector.la
+endif
+
+if HAVE_HUNSPELL
+PREDICTORS += \
+	libHunspellPredictor.la
 endif
 
 noinst_LTLIBRARIES = \
@@ -68,9 +72,9 @@ libDictionaryPredictor_la_SOURCES =	dictionaryPredictor.cpp \
 if HAVE_HUNSPELL
 libHunspellPredictor_la_SOURCES =	hunspellPredictor.cpp \
 					hunspellPredictor.h      
-endif
 
 libHunspellPredictor_la_LIBADD =	$(HUNSPELL_LIBS)
+endif
 
 libDummyPredictor_la_SOURCES =		dummyPredictor.cpp \
 					dummyPredictor.h           

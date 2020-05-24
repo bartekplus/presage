@@ -34,7 +34,9 @@
 #include "predictors/abbreviationExpansionPredictor.h"
 #include "predictors/dummyPredictor.h"
 #include "predictors/dictionaryPredictor.h"
+#ifdef HAVE_HUNSPELL_HUNSPELL_HXX
 #include "predictors/hunspellPredictor.h"
+#endif
 #include "predictors/recencyPredictor.h"
 #include "predictors/dejavuPredictor.h"
 
@@ -162,11 +164,13 @@ void PredictorRegistry::addPredictor(const std::string& predictorName)
 	else if (predictor_class == "DictionaryPredictor" )
 	{
             predictor = new DictionaryPredictor(config, contextTracker, name);
-        }
+	}
+#ifdef HAVE_HUNSPELL_HUNSPELL_HXX
 	else if (predictor_class == "HunspellPredictor" )
 	{
 	    predictor = new HunspellPredictor(config, contextTracker, name);
 	}
+#endif
 #ifdef USE_SQLITE
 	else if (predictor_class == "SmoothedNgramPredictor") 
 	{
