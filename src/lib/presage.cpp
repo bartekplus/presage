@@ -553,6 +553,8 @@ EMSCRIPTEN_BINDINGS(Presage) {
   emscripten::class_<Presage>("Presage")
     .constructor<PresageCallback *, std::string>()
     .function("predict", (std::vector<std::string> (Presage::*)()) &Presage::predict)
+    .function("config", (std::string (Presage::*)(const std::string) const) &Presage::config)
+    .function("config", (void (Presage::*)(const std::string, const std::string) const) &Presage::config)
     ;
 
   // register bindings for std::vector<int> and std::map<int, std::string>.
