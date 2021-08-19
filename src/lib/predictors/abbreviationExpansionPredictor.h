@@ -58,11 +58,15 @@ public:
 private:
     std::string LOGGER;
     std::string ABBREVIATIONS;
+    std::string PREPEND_BACKSPACES;
 
     void set_abbreviations (const std::string& filename);
+    void set_prepend_backspaces (const std::string& value);
     void cacheAbbreviationsExpansions();
 
     std::string abbreviations;
+    bool prepend_backspaces;
+
     std::map< std::string, std::string> cache;
 
     Dispatcher<AbbreviationExpansionPredictor> dispatcher;
