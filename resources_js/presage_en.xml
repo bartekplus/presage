@@ -8,7 +8,7 @@
         <LOGGER>ERROR</LOGGER>
         <SLIDING_WINDOW_SIZE>0</SLIDING_WINDOW_SIZE>
 	<LOWERCASE_MODE>yes</LOWERCASE_MODE>
-	<ONLINE_LEARNING>yes</ONLINE_LEARNING>
+	<ONLINE_LEARNING>no</ONLINE_LEARNING>
     </ContextTracker>
     <Selector>
         <LOGGER>ERROR</LOGGER>
@@ -62,6 +62,7 @@
             <PREDICTOR>AbbreviationExpansionPredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
             <ABBREVIATIONS>/resources_js/abbreviations_en.txt</ABBREVIATIONS>
+            <PREPEND_BACKSPACES>no</PREPEND_BACKSPACES>
         </DefaultAbbreviationExpansionPredictor>
     </Predictors>
 </Presage>
