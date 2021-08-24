@@ -2,7 +2,7 @@
 <Presage>
     <PredictorRegistry>
         <LOGGER>ERROR</LOGGER>
-        <PREDICTORS>DefaultSmoothedNgramPredictor DefaultAspellPredictor DefaultHunspellPredictor DefaultAbbreviationExpansionPredictor DefaultRecencyPredictor</PREDICTORS>
+        <PREDICTORS>DefaultSmoothedNgramTriePredictor DefaultAspellPredictor DefaultHunspellPredictor DefaultAbbreviationExpansionPredictor DefaultRecencyPredictor</PREDICTORS>
     </PredictorRegistry>
     <ContextTracker>
         <LOGGER>ERROR</LOGGER>
@@ -27,17 +27,16 @@
         <AUTOPERSIST>false</AUTOPERSIST>
     </ProfileManager>
     <Predictors>
-        <DefaultSmoothedNgramPredictor>
-            <PREDICTOR>SmoothedNgramPredictor</PREDICTOR>
+        <DefaultSmoothedNgramTriePredictor>
+            <PREDICTOR>SmoothedNgramTriePredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
-            <DBFILENAME>/resources_js/database_en.db</DBFILENAME>
-            <DELTAS>0.01 0.1 0.89</DELTAS>
+            <DBFILENAME>/resources_js/database_en</DBFILENAME>
+            <DELTAS>0.01 0.05 0.1 0.84</DELTAS>
             <COUNT_THRESHOLD>0</COUNT_THRESHOLD>
-            <LEARN>false</LEARN>
             <DatabaseConnector>
                 <LOGGER>ERROR</LOGGER>
             </DatabaseConnector>
-        </DefaultSmoothedNgramPredictor>
+        </DefaultSmoothedNgramTriePredictor>
         <DefaultRecencyPredictor>
             <PREDICTOR>RecencyPredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
