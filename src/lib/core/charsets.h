@@ -180,7 +180,6 @@ const char DEFAULT_SEPARATOR_CHARS[]={
     '$',
     '%',
     '&',
-    '\'',
     '(',
     ')',
     '*',
