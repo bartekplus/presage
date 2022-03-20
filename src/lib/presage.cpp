@@ -87,6 +87,38 @@ std::vector<std::string> Presage::predict ()
     return result;
 }
 
+std::vector<std::pair<std::string, double>> Presage::predictWithProbability ()
+    throw (PresageException)
+{
+    std::vector<std::pair<std::string, double>> result;
+    std::vector<std::string> selection;
+    unsigned int multiplier = 1;
+
+    Prediction prediction = predictorActivator->predict(multiplier++, NULL);
+    selection = selector->select(prediction);
+
+    Prediction previous_prediction = prediction;
+    while ((selection.size() < (selector->get_suggestions()))
+	   && (prediction = predictorActivator->predict(multiplier++, NULL)).size() > previous_prediction.size()) {
+	// while the number of predicted tokens is lower than desired,
+	// search harder (i.e. higher multiplier) for a prediction of
+	// sufficient size (i.e. that satisfies selector), as long as
+	// the selection of current prediction is greater than the
+	// previous prediction (i.e. we are finding new tokens).
+	selection = selector->select(prediction);
+	previous_prediction = prediction;
+    }
+
+    for (std::vector<std::string>::const_iterator it = selection.begin(); it != selection.end(); it++) {
+        std::pair<std::string, const double> p((*it), prediction.getSuggestion(*it).getProbability());
+	    result.push_back(p);
+    }
+
+    contextTracker->update();
+
+    return result;
+}
+
 std::multimap<double, std::string> Presage::predict (std::vector<std::string> filter)
     throw (PresageException)
 {
@@ -553,12 +585,18 @@ EMSCRIPTEN_BINDINGS(Presage) {
   emscripten::class_<Presage>("Presage")
     .constructor<PresageCallback *, std::string>()
     .function("predict", (std::vector<std::string> (Presage::*)()) &Presage::predict)
+    .function("predictWithProbability", (std::vector<std::pair<std::string, double>> (Presage::*)()) &Presage::predictWithProbability)
     .function("config", (std::string (Presage::*)(const std::string) const) &Presage::config)
     .function("config", (void (Presage::*)(const std::string, const std::string) const) &Presage::config)
     ;
 
-  // register bindings for std::vector<int> and std::map<int, std::string>.
+  // register bindings
   emscripten::register_vector<std::string>("vector<std::string>");
+  emscripten::register_vector<std::pair<std::string, double>>("VectorOfPairsStrDbl");
+  emscripten::value_object<std::pair<std::string, double>>("predictionResult")
+    .field("prediction", &std::pair<std::string, double>::first)
+    .field("probability", &std::pair<std::string, double>::second)
+    ;
 }
 
 

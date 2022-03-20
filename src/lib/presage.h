@@ -140,6 +140,17 @@ public:
      */
     std::vector<std::string> predict() throw (PresageException);
 
+    /** \brief Obtain a prediction.
+     *
+     * This method requests that presage generates a prediction based
+     * on the current context.
+     *
+     * \return prediction (vector of pairs(prediction and probability))
+     *  based on the current context.
+     *
+     */
+    std::vector<std::pair<std::string, double>> predictWithProbability() throw (PresageException);
+
     /** \brief Obtain a prediction that matches the supplied token
      *         filter.
      *
