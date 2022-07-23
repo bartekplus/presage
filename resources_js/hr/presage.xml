@@ -2,7 +2,7 @@
 <Presage>
     <PredictorRegistry>
         <LOGGER>ERROR</LOGGER>
-        <PREDICTORS>DefaultSmoothedNgramTriePredictor DefaultAspellPredictor DefaultHunspellPredictor DefaultAbbreviationExpansionPredictor DefaultRecencyPredictor</PREDICTORS>
+        <PREDICTORS>DefaultSmoothedNgramTriePredictor DefaultAspellPredictor DefaultHunspellPredictor DefaultRecencyPredictor</PREDICTORS>
     </PredictorRegistry>
     <ContextTracker>
         <LOGGER>ERROR</LOGGER>
@@ -27,10 +27,10 @@
         <AUTOPERSIST>false</AUTOPERSIST>
     </ProfileManager>
     <Predictors>
-        <DefaultSmoothedNgramTriePredictor>
+    <DefaultSmoothedNgramTriePredictor>
             <PREDICTOR>SmoothedNgramTriePredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
-            <DBFILENAME>/resources_js/database_en</DBFILENAME>
+            <DBFILENAME>/resources_js/hr/ngrams_db</DBFILENAME>
             <DELTAS>0.01 0.05 0.1 0.2 0.64</DELTAS>
             <COUNT_THRESHOLD>0</COUNT_THRESHOLD>
             <DatabaseConnector>
@@ -47,21 +47,15 @@
         <DefaultHunspellPredictor>
             <PREDICTOR>HunspellPredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
-            <DICTIONARYBASE>/resources_js/hunspell/en_US</DICTIONARYBASE>
+            <DICTIONARYBASE>/resources_js/hr/hunspell/hr_HR</DICTIONARYBASE>
             <PROBABILITY>0.000001</PROBABILITY>
         </DefaultHunspellPredictor>
         <DefaultAspellPredictor>
             <PREDICTOR>AspellPredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
-            <LANG>en_US</LANG>
-            <MASTER>/resources_js/aspell/en_US.multi</MASTER>
+            <LANG>hr_HR</LANG>
+            <MASTER>/resources_js/hr/aspell/hr.multi</MASTER>
             <PROBABILITY>0.000001</PROBABILITY>
         </DefaultAspellPredictor>
-        <DefaultAbbreviationExpansionPredictor>
-            <PREDICTOR>AbbreviationExpansionPredictor</PREDICTOR>
-            <LOGGER>ERROR</LOGGER>
-            <ABBREVIATIONS>/resources_js/abbreviations_en.txt</ABBREVIATIONS>
-            <PREPEND_BACKSPACES>no</PREPEND_BACKSPACES>
-        </DefaultAbbreviationExpansionPredictor>
     </Predictors>
 </Presage>
