@@ -2,7 +2,7 @@
 <Presage>
     <PredictorRegistry>
         <LOGGER>ERROR</LOGGER>
-        <PREDICTORS>DefaultSmoothedNgramTriePredictor DefaultAspellPredictor DefaultHunspellPredictor DefaultRecencyPredictor</PREDICTORS>
+        <PREDICTORS>DefaultSmoothedNgramTriePredictor DefaultAspellPredictor DefaultHunspellPredictor DefaultAbbreviationExpansionPredictor DefaultRecencyPredictor</PREDICTORS>
     </PredictorRegistry>
     <ContextTracker>
         <LOGGER>ERROR</LOGGER>
@@ -57,5 +57,11 @@
             <MASTER>/resources_js/fr/aspell/fr.multi</MASTER>
             <PROBABILITY>0.000001</PROBABILITY>
         </DefaultAspellPredictor>
+        <DefaultAbbreviationExpansionPredictor>
+            <PREDICTOR>AbbreviationExpansionPredictor</PREDICTOR>
+            <LOGGER>ERROR</LOGGER>
+            <ABBREVIATIONS>/resources_js/abbreviations.txt</ABBREVIATIONS>
+            <PREPEND_BACKSPACES>no</PREPEND_BACKSPACES>
+        </DefaultAbbreviationExpansionPredictor>
     </Predictors>
 </Presage>
