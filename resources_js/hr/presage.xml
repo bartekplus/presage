@@ -18,7 +18,7 @@
     </Selector>
     <PredictorActivator>
         <LOGGER>ERROR</LOGGER>
-        <PREDICT_TIME>1000</PREDICT_TIME>
+        <PREDICT_TIME>2000</PREDICT_TIME>
         <MAX_PARTIAL_PREDICTION_SIZE>60</MAX_PARTIAL_PREDICTION_SIZE>
         <COMBINATION_POLICY>Meritocracy</COMBINATION_POLICY>
     </PredictorActivator>
@@ -31,7 +31,7 @@
             <PREDICTOR>SmoothedNgramTriePredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
             <DBFILENAME>/resources_js/hr/ngrams_db</DBFILENAME>
-            <DELTAS>0.01 0.05 0.1 0.2 0.64</DELTAS>
+            <DELTAS>0.125 0.25 0.5 0.75 0.875</DELTAS>
             <COUNT_THRESHOLD>0</COUNT_THRESHOLD>
             <DatabaseConnector>
                 <LOGGER>ERROR</LOGGER>
@@ -48,14 +48,14 @@
             <PREDICTOR>HunspellPredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
             <DICTIONARYBASE>/resources_js/hr/hunspell/hr_HR</DICTIONARYBASE>
-            <PROBABILITY>0.000001</PROBABILITY>
+            <PROBABILITY>0.00000001</PROBABILITY>
         </DefaultHunspellPredictor>
         <DefaultAspellPredictor>
             <PREDICTOR>AspellPredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
             <LANG>hr_HR</LANG>
             <MASTER>/resources_js/hr/aspell/hr.multi</MASTER>
-            <PROBABILITY>0.000001</PROBABILITY>
+            <PROBABILITY>0.00000001</PROBABILITY>
         </DefaultAspellPredictor>
         <DefaultAbbreviationExpansionPredictor>
             <PREDICTOR>AbbreviationExpansionPredictor</PREDICTOR>
