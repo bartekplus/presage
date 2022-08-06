@@ -114,8 +114,9 @@ Prediction AspellPredictor::predict(const size_t max_partial_predictions_size, c
       {
         AspellStringEnumeration * els = aspell_word_list_elements(wl);
         const char * word;
+        unsigned idx;
         while ( (word = aspell_string_enumeration_next(els)) != 0) {
-          result.addSuggestion(Suggestion(word, probability));
+          result.addSuggestion(Suggestion(word, probability / ++idx));
         }
         delete_aspell_string_enumeration(els);
       }
