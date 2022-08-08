@@ -18,7 +18,7 @@
     </Selector>
     <PredictorActivator>
         <LOGGER>ERROR</LOGGER>
-        <PREDICT_TIME>2000</PREDICT_TIME>
+        <PREDICT_TIME>1000</PREDICT_TIME>
         <MAX_PARTIAL_PREDICTION_SIZE>60</MAX_PARTIAL_PREDICTION_SIZE>
         <COMBINATION_POLICY>Meritocracy</COMBINATION_POLICY>
     </PredictorActivator>
