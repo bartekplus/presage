@@ -67,7 +67,7 @@ private:
     std::string abbreviations;
     bool prepend_backspaces;
 
-    std::map< std::string, std::string> cache;
+    std::multimap< std::string, std::string> cache;
 
     Dispatcher<AbbreviationExpansionPredictor> dispatcher;
 };

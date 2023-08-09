@@ -75,19 +75,22 @@ Prediction AbbreviationExpansionPredictor::predict(const size_t max_partial_pred
     std::string prefix = contextTracker->getPrefix();
 
     std::map< std::string, std::string >::const_iterator it = cache.find(prefix);
+    auto range = cache.equal_range(prefix);
 
-    if (it != cache.end()) {
-        std::string prediction(it->second);
-        if (prepend_backspaces) {
-            // prepend expansion with enough backspaces to erase
-            // abbreviation
-            std::string expansion(prefix.size(), '\b');
 
-            // concatenate actual expansion
-            prediction = expansion + prediction;
+    if (range.first != range.second) {
+        for (auto it = range.first; it != range.second; ++it) {
+            std::string prediction(it->second);
+            if (prepend_backspaces) {
+                // prepend expansion with enough backspaces to erase
+                // abbreviation
+                std::string expansion(prefix.size(), '\b');
+
+                // concatenate actual expansion
+                prediction = expansion + prediction;
+            }
+            result.addSuggestion(Suggestion(prediction, 1.0));
         }
-        result.addSuggestion(Suggestion(prediction, 1.0));
-
     } else {
         logger << NOTICE << "Could not find expansion for abbreviation: " << prefix << endl;
     }
@@ -131,7 +134,7 @@ void AbbreviationExpansionPredictor::cacheAbbreviationsExpansions()
                 expansion    = buffer.substr(tab_pos + 1, std::string::npos);
 
                 logger << INFO << "Caching abbreviation: " << abbreviation << " - expansion: " << expansion << endl;
-                cache[abbreviation] = expansion;
+                cache.insert({abbreviation, expansion});
             }
         }
         
