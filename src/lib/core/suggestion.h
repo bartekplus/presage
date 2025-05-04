@@ -56,6 +56,7 @@ public:
     bool operator== (const Suggestion&) const;
     bool operator!= (const Suggestion&) const;
     bool operator<  (const Suggestion&) const;
+    bool operator>  (const Suggestion&) const;
 
     std::string getWord() const;
     double getProbability() const;

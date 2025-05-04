@@ -69,7 +69,7 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
     Prediction result;
 
     std::string candidate;
-    std::string prefix = contextTracker->getPrefix();
+    std::string const prefix = contextTracker->getPrefix();
 
     std::ifstream dictionary_file;
     dictionary_file.open(dictionary_path.c_str());
@@ -77,21 +77,27 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
         logger << ERROR << "Error opening dictionary: " << dictionary_path << endl;
     assert(dictionary_file); // REVISIT: handle with exceptions
 
-    // scan file entries until we get enough suggestions
-    unsigned int count = 0;
-    while(dictionary_file >> candidate && count < max_partial_predictions_size) {
-	if(candidate.find(prefix) == 0) {  // candidate starts with prefix
-	    logger << NOTICE << "Found valid token: " << candidate << endl;
-	    if (token_satisfies_filter (candidate, prefix, filter)) {
-		logger << NOTICE << "Filter check satisfied by token: " << candidate << endl;
-		result.addSuggestion(Suggestion(candidate,probability));
-		count++;
-	    } else {
-		logger << NOTICE << "Filter check failed, discarding token: " << candidate << endl;
-	    }
-	} else {
-	    logger << INFO << "Discarding invalid token: " << candidate << endl;
-	}
+    std::priority_queue<Suggestion, std::vector<Suggestion>, std::greater<Suggestion>> pq;
+
+    while (dictionary_file >> candidate) { // Reads words separated by whitespace
+        std::string candidateLower{candidate};
+        Utility::strtolower(candidateLower);
+        int const distance = levenshteinDistance(prefix, candidateLower);
+        double const cProbability = (probability) / exp(std::max(0, distance));
+        Suggestion current_suggestion{candidate, cProbability};
+
+        if (pq.size() < max_partial_predictions_size) {
+            pq.push(current_suggestion);
+        } else if (max_partial_predictions_size > 0 && pq.top() < current_suggestion) {
+            pq.pop();
+            pq.push(current_suggestion);
+        }
+        logger << DEBUG << "Prefix: " << prefix << " candidate: " << candidate << " distance: " << distance << " probability: " << cProbability << endl;
+    }
+
+    for (; !pq.empty(); pq.pop()) {
+        logger << INFO << "Candidate: " << pq.top().getWord() << " probability: " << pq.top().getProbability()<< endl;
+        result.addSuggestion(pq.top());
     }
 
     dictionary_file.close();
@@ -111,4 +117,63 @@ void DictionaryPredictor::update (const Observable* var)
 {
     logger << DEBUG << "About to invoke dispatcher: " << var->get_name () << " - " << var->get_value() << endl;
     dispatcher.dispatch (var);
+}
+
+/**
+ * @brief Calculates the Levenshtein distance between two strings.
+ *
+ * The Levenshtein distance is the minimum number of single-character edits
+ * (insertions, deletions, or substitutions) required to change one string
+ * into the other. This implementation uses dynamic programming with O(min(m,n)) space.
+ *
+ * @param s1 The first string.
+ * @param s2 The second string.
+ * @return The Levenshtein distance between s1 and s2.
+ */
+int DictionaryPredictor::levenshteinDistance(const std::string& s1, const std::string& s2) const {
+    const size_t len1 = s1.length();
+    const size_t len2 = s2.length();
+
+    // Optimization: use shorter string for columns to minimize space
+    const std::string& shorter = (len1 < len2) ? s1 : s2;
+    const std::string& longer = (len1 < len2) ? s2 : s1;
+    const size_t shorter_len = shorter.length();
+    const size_t longer_len = longer.length();
+
+    if (shorter_len == 0) {
+        return static_cast<int>(longer_len);
+    }
+
+    // Use only two rows for DP table (current and previous)
+    std::vector<int> previous_row(shorter_len + 1);
+    std::vector<int> current_row(shorter_len + 1);
+
+    // Initialize the previous row (costs for empty 'longer' string)
+    for (size_t i = 0; i <= shorter_len; ++i) {
+        previous_row[i] = static_cast<int>(i);
+    }
+    // Or using std::iota (requires <numeric>):
+    // std::iota(previous_row.begin(), previous_row.end(), 0);
+
+
+    // Fill the DP table row by row
+    for (size_t i = 1; i <= longer_len; ++i) {
+        current_row[0] = static_cast<int>(i); // Cost for empty 'shorter' string
+
+        for (size_t j = 1; j <= shorter_len; ++j) {
+            int cost = (longer[i - 1] == shorter[j - 1]) ? 0 : 1;
+
+            current_row[j] = std::min({
+                previous_row[j] + 1,         // Deletion from longer string
+                current_row[j - 1] + 1,      // Insertion into longer string
+                previous_row[j - 1] + cost   // Substitution or match
+            });
+        }
+        // Swap rows for the next iteration
+        previous_row.swap(current_row);
+    }
+
+    // The final distance is in the last element of the 'previous_row'
+    // (because we swapped at the end of the loop)
+    return previous_row[shorter_len];
 }

@@ -60,6 +60,20 @@ bool Suggestion::operator< (const Suggestion& right) const
     }
 }
 
+bool Suggestion::operator>(const Suggestion& right) const
+{
+    // First compare by probability
+    if (probability > right.probability) {
+        return true;
+    }
+    else if (probability == right.probability) {
+        // If probabilities are equal, compare by word lexicographically
+        return (word > right.word);
+    }
+    else {
+        return false;
+    }
+}
 
 std::string Suggestion::getWord() const
 {

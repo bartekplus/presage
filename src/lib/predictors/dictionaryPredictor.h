@@ -62,6 +62,7 @@ private:
     double probability;
 
     Dispatcher<DictionaryPredictor> dispatcher;
+    int levenshteinDistance(const std::string& s1, const std::string& s2) const;
 };
 
 #endif // PRESAGE_DICTIONARYPREDICTOR
