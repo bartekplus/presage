@@ -71,11 +71,11 @@ public:
 
     class SuggestionException : public PresageException {
     public:
-	SuggestionException(presage_error_code_t code, const std::string& msg) throw() : PresageException(code, msg) { }
-	virtual ~SuggestionException() throw() { }
+	SuggestionException(presage_error_code_t code, const std::string& msg) noexcept : PresageException(code, msg) { }
+	virtual ~SuggestionException() noexcept { }
 
     private:
-	SuggestionException() throw() : PresageException(PRESAGE_ERROR, "") {};
+	SuggestionException() noexcept : PresageException(PRESAGE_ERROR, "") {};
 
     };
 

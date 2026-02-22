@@ -112,7 +112,7 @@ public:
      * 
      * Presage does not take ownership of the callback object.
      */
-    Presage(PresageCallback* callback) throw (PresageException);
+    Presage(PresageCallback* callback) noexcept(false);
 
 
     /** Creates and initializes presage with supplied configuration.
@@ -122,7 +122,7 @@ public:
      *
      * Presage does not take ownership of the callback object.
      */
-    Presage(PresageCallback* callback, const std::string config) throw (PresageException);
+    Presage(PresageCallback* callback, const std::string config) noexcept(false);
 
 
     /** Destroys presage.
@@ -138,7 +138,7 @@ public:
      * context.
      *
      */
-    std::vector<std::string> predict() throw (PresageException);
+    std::vector<std::string> predict() noexcept(false);
 
     /** \brief Obtain a prediction.
      *
@@ -149,7 +149,7 @@ public:
      *  based on the current context.
      *
      */
-    std::vector<std::pair<std::string, double>> predictWithProbability() throw (PresageException);
+    std::vector<std::pair<std::string, double>> predictWithProbability() noexcept(false);
 
     /** \brief Obtain a prediction that matches the supplied token
      *         filter.
@@ -164,7 +164,7 @@ public:
      * of the filter tokens.
      *
      */
-    std::multimap<double, std::string> predict(std::vector<std::string> filter) throw (PresageException);
+    std::multimap<double, std::string> predict(std::vector<std::string> filter) noexcept(false);
 
     /** \brief Learn from text offline.
      *
@@ -178,7 +178,7 @@ public:
      * \param text a text string to learn from.
      *
      */
-    void learn(const std::string text) const throw (PresageException);
+    void learn(const std::string text) const noexcept(false);
 
     /** \brief Forget a word.
      *
@@ -189,7 +189,7 @@ public:
      * \param text a text string to learn from.
      *
      */
-    void forget(const std::string word) const throw (PresageException);
+    void forget(const std::string word) const noexcept(false);
 
     /** \brief Callback getter/setter.
      *
@@ -198,7 +198,7 @@ public:
      *
      * \return pointer to previously used callback
      */
-    PresageCallback* callback(PresageCallback* callback) throw (PresageException);
+    PresageCallback* callback(PresageCallback* callback) noexcept(false);
 
     /** \brief Request presage to return the completion string for the given predicted token.
      *
@@ -212,26 +212,26 @@ public:
      *
      * \return completion string
      */
-    std::string completion(std::string str) throw (PresageException);
+    std::string completion(std::string str) noexcept(false);
 
     /** \brief Returns the text entered so far.
      *
      * \return context, text entered so far.
      */
-    std::string context() const throw (PresageException);
+    std::string context() const noexcept(false);
 
     /** \brief Returns true if a context change occured.
      *
      * \return true if a context change occured after the last update
      * or predict calls, or false otherwise.
      */
-    bool context_change() const throw (PresageException);
+    bool context_change() const noexcept(false);
 
     /** \brief Returns the current prefix.
      *
      * \return prefix
      */
-    std::string prefix() const throw (PresageException);
+    std::string prefix() const noexcept(false);
 
     /** \brief Gets the value of specified configuration variable.
      *
@@ -240,7 +240,7 @@ public:
      *
      * \return value assigned to configuration variable.
      */
-    std::string config(const std::string variable) const throw (PresageException);
+    std::string config(const std::string variable) const noexcept(false);
 
     /** \brief Sets the value of specified configuration variable.
      *
@@ -249,7 +249,7 @@ public:
      * from the configuration file in use.
      *
      */
-    void config(const std::string variable, const std::string value) const throw (PresageException);
+    void config(const std::string variable, const std::string value) const noexcept(false);
 
     /** \brief Save current configuration to file.
      *
@@ -258,14 +258,14 @@ public:
      * active XML profile.
      *
      */
-    void save_config() const throw (PresageException);
+    void save_config() const noexcept(false);
 
     /** \brief Returns presage release version.
      *
      * Programmatically retrieve the presage release version string.
      *
      */
-    std::string version() const throw (PresageException);
+    std::string version() const noexcept(false);
 
     /*
      * Presage public API ends here

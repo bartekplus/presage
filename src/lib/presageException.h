@@ -66,24 +66,24 @@ extern "C" {
  */
 class PresageException : public std::exception {
 public:
-    PresageException(presage_error_code_t code, const std::string& msg) throw()
+    PresageException(presage_error_code_t code, const std::string& msg) noexcept
 	: m_details (msg),
 	  m_code    (code)
     {
 	// intentionally empty
     }
 
-    virtual ~PresageException() throw()
+    virtual ~PresageException() noexcept
     {
 	// intentionally empty
     }
 
-    virtual const char* what() const throw()
+    virtual const char* what() const noexcept
     {
 	return m_details.c_str();
     }
 
-    virtual const presage_error_code_t code() const throw()
+    virtual const presage_error_code_t code() const noexcept
     {
 	return m_code;
     }

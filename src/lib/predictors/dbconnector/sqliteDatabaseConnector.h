@@ -57,11 +57,11 @@ class SqliteDatabaseConnector : public DatabaseConnector {
 
     class SqliteDatabaseConnectorException : public PresageException {
     public:
-	SqliteDatabaseConnectorException(presage_error_code_t code, const std::string& errormsg) throw() : PresageException(code, errormsg) { }
-	virtual ~SqliteDatabaseConnectorException() throw() { }
+	SqliteDatabaseConnectorException(presage_error_code_t code, const std::string& errormsg) noexcept : PresageException(code, errormsg) { }
+	virtual ~SqliteDatabaseConnectorException() noexcept { }
 
     private:
-	SqliteDatabaseConnectorException() throw() : PresageException(PRESAGE_ERROR, "") {};
+	SqliteDatabaseConnectorException() noexcept : PresageException(PRESAGE_ERROR, "") {};
 
     };
 
