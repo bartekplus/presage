@@ -71,6 +71,8 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
     std::string candidate;
     std::string const prefix = contextTracker->getPrefix();
     bool const prefix_only = contextTracker->getPrefixOnlyMode();
+    std::string prefixLower(prefix);
+    Utility::strtolower(prefixLower);
 
     std::ifstream dictionary_file;
     dictionary_file.open(dictionary_path.c_str());
@@ -84,7 +86,7 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
         std::string candidateLower{candidate};
         Utility::strtolower(candidateLower);
 
-        if (prefix_only && candidateLower.find(prefix) != 0) {
+        if (prefix_only && candidateLower.find(prefixLower) != 0) {
             continue;
         }
 

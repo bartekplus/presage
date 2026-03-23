@@ -91,6 +91,8 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
       return result;
 
     bool const prefix_only = contextTracker->getPrefixOnlyMode();
+    std::string prefixLower(prefix);
+    Utility::strtolower(prefixLower);
 
     unsigned int count = 0;
     if (hunspell->spell(prefix))
@@ -110,7 +112,7 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
           if (prefix_only) {
             std::string candidateLower(*it);
             Utility::strtolower(candidateLower);
-            if (candidateLower.find(prefix) != 0) {
+            if (candidateLower.find(prefixLower) != 0) {
               continue;
             }
           }
@@ -134,7 +136,7 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
           if (prefix_only) {
             std::string candidateLower(*it);
             Utility::strtolower(candidateLower);
-            if (candidateLower.find(prefix) != 0) {
+            if (candidateLower.find(prefixLower) != 0) {
               continue;
             }
           }
