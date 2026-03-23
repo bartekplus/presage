@@ -109,6 +109,9 @@ Prediction AspellPredictor::predict(const size_t max_partial_predictions_size, c
 
     bool const prefix_only = contextTracker->getPrefixOnlyMode();
 
+    std::string wordLower(word);
+    Utility::strtolower(wordLower);
+
     if (aspell_speller_check(speller,  word.c_str(), word.length()) != 1)
     {
       const AspellWordList *wl = aspell_speller_suggest(speller, word.c_str(), word.length());
@@ -116,13 +119,13 @@ Prediction AspellPredictor::predict(const size_t max_partial_predictions_size, c
       {
         AspellStringEnumeration * els = aspell_word_list_elements(wl);
         const char * suggestion;
-        unsigned idx;
+        unsigned idx = 0;
         while ( (suggestion = aspell_string_enumeration_next(els)) != 0) {
           std::string suggestionStr(suggestion);
           if (prefix_only) {
             std::string suggestionLower(suggestionStr);
             Utility::strtolower(suggestionLower);
-            if (suggestionLower.find(word) != 0) {
+            if (suggestionLower.find(wordLower) != 0) {
               continue;
             }
           }

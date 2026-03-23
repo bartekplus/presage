@@ -106,7 +106,7 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
         double cprob = probability - dprob;
 
         std::vector<std::string>::const_iterator it = wlst.cbegin();
-        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++it, cprob -= dprob) {
+        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++it) {
           if (prefix_only) {
             std::string candidateLower(*it);
             Utility::strtolower(candidateLower);
@@ -117,6 +117,7 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
           result.addSuggestion(Suggestion(*it, cprob));
           logger << DEBUG << "suffix suggestion: " << *it << endl;
           ++count;
+          cprob -= dprob;
         }
       }
     else
@@ -129,7 +130,7 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
         double cprob = probability - dprob;
 
         std::vector<std::string>::const_iterator it = wlst.cbegin();
-        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++it, cprob -= dprob) {
+        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++it) {
           if (prefix_only) {
             std::string candidateLower(*it);
             Utility::strtolower(candidateLower);
@@ -140,6 +141,7 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
           result.addSuggestion(Suggestion(*it, cprob));
           logger << DEBUG << "speller suggestion: " << *it << endl;
           ++count;
+          cprob -= dprob;
         }
       }
     
