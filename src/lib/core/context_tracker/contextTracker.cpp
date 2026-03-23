@@ -32,6 +32,7 @@
 const char* ContextTracker::LOGGER = "Presage.ContextTracker.LOGGER";
 const char* ContextTracker::SLIDING_WINDOW_SIZE = "Presage.ContextTracker.SLIDING_WINDOW_SIZE";
 const char* ContextTracker::LOWERCASE_MODE = "Presage.ContextTracker.LOWERCASE_MODE";
+const char* ContextTracker::PREFIX_ONLY_MODE = "Presage.ContextTracker.PREFIX_ONLY_MODE";
 const char* ContextTracker::ONLINE_LEARNING = "Presage.ContextTracker.ONLINE_LEARNING";
 
 ContextTracker::ContextTracker(Configuration* config,
@@ -49,6 +50,7 @@ ContextTracker::ContextTracker(Configuration* config,
       logger         ("ContextTracker", std::cerr),
       //tokenizer      (pastStream, blankspaceChars, separatorChars),
       lowercase_mode (true),
+      prefix_only_mode (false),
       dispatcher     (this)
 {
     if (callback) {
@@ -74,6 +76,7 @@ ContextTracker::ContextTracker(Configuration* config,
     dispatcher.map (config->find (LOGGER), & ContextTracker::set_logger);
     dispatcher.map (config->find (SLIDING_WINDOW_SIZE), & ContextTracker::set_sliding_window_size);
     dispatcher.map (config->find (LOWERCASE_MODE), & ContextTracker::set_lowercase_mode);
+    dispatcher.map (config->find (PREFIX_ONLY_MODE), & ContextTracker::set_prefix_only_mode);
     dispatcher.map (config->find (ONLINE_LEARNING), & ContextTracker::set_online_learning);
 }
 
@@ -98,6 +101,17 @@ void ContextTracker::set_lowercase_mode (const std::string& value)
 {
     lowercase_mode = Utility::isYes(value);
     logger << INFO << "LOWERCASE_MODE: " << value << endl;
+}
+
+void ContextTracker::set_prefix_only_mode (const std::string& value)
+{
+    prefix_only_mode = Utility::isYes(value);
+    logger << INFO << "PREFIX_ONLY_MODE: " << value << endl;
+}
+
+bool ContextTracker::getPrefixOnlyMode() const
+{
+    return prefix_only_mode;
 }
 
 void ContextTracker::set_online_learning(const std::string& value)
