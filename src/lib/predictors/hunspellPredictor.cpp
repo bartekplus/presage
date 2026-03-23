@@ -90,23 +90,33 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
     if (!hunspell || prefix.empty())
       return result;
 
+    bool const prefix_only = contextTracker->getPrefixOnlyMode();
+
     unsigned int count = 0;
     if (hunspell->spell(prefix))
       {
         logger << DEBUG << prefix << " is correct" << endl;
-        
+
         // correct spelling, let's add available suffixes
         result.addSuggestion(Suggestion(prefix,probability)); // add the word itself
         count += 1;
-                
+
         std::vector<std::string> wlst = hunspell->suffix_suggest(prefix);
         double dprob = probability / (wlst.size() + 2);
         double cprob = probability - dprob;
 
         std::vector<std::string>::const_iterator it = wlst.cbegin();
-        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++count, ++it, cprob -= dprob) {
+        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++it, cprob -= dprob) {
+          if (prefix_only) {
+            std::string candidateLower(*it);
+            Utility::strtolower(candidateLower);
+            if (candidateLower.find(prefix) != 0) {
+              continue;
+            }
+          }
           result.addSuggestion(Suggestion(*it, cprob));
           logger << DEBUG << "suffix suggestion: " << *it << endl;
+          ++count;
         }
       }
     else
@@ -117,11 +127,19 @@ Prediction HunspellPredictor::predict(const size_t max_partial_predictions_size,
         std::vector<std::string> wlst = hunspell->suggest(prefix);
         double dprob = probability / (wlst.size() + 1);
         double cprob = probability - dprob;
-        
+
         std::vector<std::string>::const_iterator it = wlst.cbegin();
-        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++count, ++it, cprob -= dprob) {
+        for ( ; count < max_partial_predictions_size && it != wlst.cend(); ++it, cprob -= dprob) {
+          if (prefix_only) {
+            std::string candidateLower(*it);
+            Utility::strtolower(candidateLower);
+            if (candidateLower.find(prefix) != 0) {
+              continue;
+            }
+          }
           result.addSuggestion(Suggestion(*it, cprob));
           logger << DEBUG << "speller suggestion: " << *it << endl;
+          ++count;
         }
       }
     

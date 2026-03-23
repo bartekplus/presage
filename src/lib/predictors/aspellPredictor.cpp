@@ -107,16 +107,26 @@ Prediction AspellPredictor::predict(const size_t max_partial_predictions_size, c
       return result;
 
 
+    bool const prefix_only = contextTracker->getPrefixOnlyMode();
+
     if (aspell_speller_check(speller,  word.c_str(), word.length()) != 1)
     {
       const AspellWordList *wl = aspell_speller_suggest(speller, word.c_str(), word.length());
       if (wl)
       {
         AspellStringEnumeration * els = aspell_word_list_elements(wl);
-        const char * word;
+        const char * suggestion;
         unsigned idx;
-        while ( (word = aspell_string_enumeration_next(els)) != 0) {
-          result.addSuggestion(Suggestion(word, probability / ++idx));
+        while ( (suggestion = aspell_string_enumeration_next(els)) != 0) {
+          std::string suggestionStr(suggestion);
+          if (prefix_only) {
+            std::string suggestionLower(suggestionStr);
+            Utility::strtolower(suggestionLower);
+            if (suggestionLower.find(word) != 0) {
+              continue;
+            }
+          }
+          result.addSuggestion(Suggestion(suggestionStr, probability / ++idx));
         }
         delete_aspell_string_enumeration(els);
       }

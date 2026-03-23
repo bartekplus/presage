@@ -70,6 +70,7 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
 
     std::string candidate;
     std::string const prefix = contextTracker->getPrefix();
+    bool const prefix_only = contextTracker->getPrefixOnlyMode();
 
     std::ifstream dictionary_file;
     dictionary_file.open(dictionary_path.c_str());
@@ -82,6 +83,11 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
     while (dictionary_file >> candidate) { // Reads words separated by whitespace
         std::string candidateLower{candidate};
         Utility::strtolower(candidateLower);
+
+        if (prefix_only && candidateLower.find(prefix) != 0) {
+            continue;
+        }
+
         int const distance = levenshteinDistance(prefix, candidateLower);
         double const cProbability = (probability) / exp(std::max(0, distance));
         Suggestion current_suggestion{candidate, cProbability};
