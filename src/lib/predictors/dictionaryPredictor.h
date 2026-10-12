@@ -63,6 +63,8 @@ private:
 
     Dispatcher<DictionaryPredictor> dispatcher;
     int levenshteinDistance(const std::string& s1, const std::string& s2) const;
+    /** Distance from the prefix to the closest start of word, or -1 when it is not a typo of it. */
+    int typoDistance(const std::string& prefix, const std::string& word) const;
 };
 
 #endif // PRESAGE_DICTIONARYPREDICTOR
