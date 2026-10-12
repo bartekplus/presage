@@ -60,6 +60,12 @@ public:
      */
     virtual Prediction predict(const size_t size, const char** filter) const = 0;
 
+    /** \brief Add scores for words that other predictors offered and this one did not.
+     *
+     * The default adds nothing.
+     */
+    virtual void rescore(Prediction& prediction, const std::vector<std::string>& words) const {}
+
     virtual void learn(const std::vector<std::string>& change) = 0;
 
     virtual void forget(const std::string& word) = 0;
