@@ -44,6 +44,9 @@ public:
 
   virtual Prediction predict(const size_t size, const char** filter) const;
 
+  /** Scores words the other predictors offered (speller corrections) by the n-gram model, times CORRECTION_WEIGHT. */
+  virtual void rescore(Prediction& prediction, const std::vector<std::string>& words) const;
+
   // no-op
   virtual void learn(const std::vector<std::string>& change);
 
@@ -57,10 +60,13 @@ protected:
     
 private:
   unsigned int count(const std::vector<std::string>& tokens, int offset, int ngram_size) const;
+  std::vector<std::string> context_tokens() const;
+  double probability(const std::vector<std::string>& tokens, int unigrams_counts_sum) const;
 
   void set_dbfilename (const std::string& filename);
   void set_deltas (const std::string& deltas);
   void set_count_threshold (const std::string& value);
+  void set_correction_weight (const std::string& value);
   void set_database_logger_level (const std::string& level);
 
 protected:
@@ -72,6 +78,7 @@ protected:
   std::string DBFILENAME;
   std::string DELTAS;
   std::string COUNT_THRESHOLD;
+  std::string CORRECTION_WEIGHT;
   std::string DATABASE_LOGGER;
 
   size_t              cardinality; // cardinality == what is the n in n-gram?
@@ -79,6 +86,7 @@ protected:
 private:
   std::vector<double> deltas;
   int                 count_threshold;
+  double              correction_weight;
 
   Dispatcher<SmoothedNgramTriePredictor> dispatcher;
 };
