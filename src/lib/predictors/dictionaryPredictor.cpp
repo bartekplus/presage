@@ -90,8 +90,13 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
             continue;
         }
 
-        int const distance = levenshteinDistance(prefix, candidateLower);
-        double const cProbability = (probability) / exp(std::max(0, distance));
+        // A word that starts with the prefix is a completion: distance 0, else a long word
+        // stays buried until it is almost fully typed. The chars still to type only break
+        // ties. Any other word keeps the whole-word distance, as a typo correction.
+        bool const completion = !prefixLower.empty() && candidateLower.compare(0, prefixLower.size(), prefixLower) == 0;
+        int const distance = completion ? 0 : levenshteinDistance(prefixLower, candidateLower);
+        double const remaining = completion ? candidateLower.size() - prefixLower.size() : 0;
+        double const cProbability = (probability) / exp(std::max(0, distance) + 0.01 * remaining);
         Suggestion current_suggestion{candidate, cProbability};
 
         if (pq.size() < max_partial_predictions_size) {
