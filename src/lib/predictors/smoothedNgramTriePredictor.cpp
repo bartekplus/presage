@@ -38,6 +38,7 @@ SmoothedNgramTriePredictor::SmoothedNgramTriePredictor(Configuration* config, Co
               "SmoothedNgramTriePredictor, long description." ),
     db (0),
     count_threshold (0),
+    correction_weight (0),
     cardinality (0),
     dispatcher (this)
 {
@@ -45,6 +46,7 @@ SmoothedNgramTriePredictor::SmoothedNgramTriePredictor(Configuration* config, Co
   DBFILENAME      = PREDICTORS + name + ".DBFILENAME";
   DELTAS          = PREDICTORS + name + ".DELTAS";
   COUNT_THRESHOLD = PREDICTORS + name + ".COUNT_THRESHOLD";
+  CORRECTION_WEIGHT = PREDICTORS + name + ".CORRECTION_WEIGHT";
   DATABASE_LOGGER = PREDICTORS + name + ".DatabaseConnector.LOGGER";
 
   // build notification dispatch map
@@ -53,6 +55,7 @@ SmoothedNgramTriePredictor::SmoothedNgramTriePredictor(Configuration* config, Co
   dispatcher.map (config->find (DBFILENAME), & SmoothedNgramTriePredictor::set_dbfilename);
   dispatcher.map (config->find (DELTAS), & SmoothedNgramTriePredictor::set_deltas);
   dispatcher.map (config->find (COUNT_THRESHOLD), & SmoothedNgramTriePredictor::set_count_threshold);
+  dispatcher.map (config->find (CORRECTION_WEIGHT, Variable (CORRECTION_WEIGHT)), & SmoothedNgramTriePredictor::set_correction_weight);
 }
 
 
@@ -82,6 +85,7 @@ void SmoothedNgramTriePredictor::set_deltas (const std::string& value)
 {
   std::stringstream ss_deltas(value);
   cardinality = 0;
+  deltas.clear ();
   std::string delta;
   while (ss_deltas >> delta) {
     logger << DEBUG << "Pushing delta: " << delta << endl;
@@ -101,6 +105,12 @@ void SmoothedNgramTriePredictor::set_count_threshold (const std::string& value)
   logger << INFO << "COUNT_THRESHOLD: " << count_threshold << endl;
 }
 
+
+void SmoothedNgramTriePredictor::set_correction_weight (const std::string& value)
+{
+  correction_weight = value.empty () ? 0 : Utility::toDouble (value);
+  logger << INFO << "CORRECTION_WEIGHT: " << correction_weight << endl;
+}
 
 void SmoothedNgramTriePredictor::init_database_connector_if_ready ()
 {
@@ -185,6 +195,63 @@ unsigned int SmoothedNgramTriePredictor::count(const std::vector<std::string>& t
   return result;
 }
 
+std::vector<std::string> SmoothedNgramTriePredictor::context_tokens() const
+{
+  // tokens[k] corresponds to w_{i-k} in the generalized smoothed n-gram probability formula
+  std::vector<std::string> tokens(cardinality);
+  for (int i = 0; i < cardinality; i++) {
+    tokens[cardinality - 1 - i] = contextTracker->getToken(i);
+    logger << DEBUG << "Cached tokens[" << cardinality - 1 - i << "] = " << tokens[cardinality - 1 - i] << endl;
+  }
+  return tokens;
+}
+
+// Linear interpolation of the n-gram frequencies of tokens.back() after the tokens before it.
+double SmoothedNgramTriePredictor::probability(const std::vector<std::string>& tokens, int unigrams_counts_sum) const
+{
+  double probability = 0;
+  for (int k = 0; k < cardinality; k++) {
+    double numerator = count(tokens, 0, k+1);
+    // reuse cached unigrams_counts_sum to speed things up
+    double denominator = (k == 0 ? unigrams_counts_sum : count(tokens, -1, k));
+    // probably not a proper fix, but done to go around some cases where denominator < numerator
+    // double frequency = ((denominator > 0) ? (numerator / denominator) : 0);
+    double frequency = ((denominator > 0 && denominator >= numerator) ? (numerator / denominator) : 0);
+    probability += deltas[k] * frequency;
+
+    logger << DEBUG << "numerator:   " << numerator << endl;
+    logger << DEBUG << "denominator: " << denominator << endl;
+    logger << DEBUG << "frequency:   " << frequency << endl;
+    logger << DEBUG << "delta:       " << deltas[k] << endl;
+
+    // for some sanity checks
+    // these assertions fail occasionally. to fix, the calculation of frequency was adjusted above
+    //assert(numerator <= denominator);
+    assert(frequency <= 1);
+  }
+
+  return probability;
+}
+
+void SmoothedNgramTriePredictor::rescore(Prediction& prediction, const std::vector<std::string>& words) const
+{
+  if (correction_weight <= 0 || !db) {
+    return;
+  }
+  std::vector<std::string> tokens = context_tokens();
+  int const unigrams_counts_sum = db->getUnigramCountsSum();
+  for (const std::string& word : words) {
+    // The database holds lowercase words; a speller offers "Paris" for "paris".
+    std::string key(word);
+    Utility::strtolower(key);
+    tokens[cardinality - 1] = key;
+    double const score = correction_weight * probability(tokens, unigrams_counts_sum);
+    if (score > 0) {
+      prediction.addSuggestion(Suggestion(word, score));
+    }
+  }
+}
+
 Prediction SmoothedNgramTriePredictor::predict(const size_t max_partial_prediction_size, const char** filter) const
 {
   logger << DEBUG << "predict()" << endl;
@@ -196,11 +263,7 @@ Prediction SmoothedNgramTriePredictor::predict(const size_t max_partial_predicti
   // tokens[k] corresponds to w_{i-k} in the generalized smoothed
   // n-gram probability formula
   //
-  std::vector<std::string> tokens(cardinality);
-  for (int i = 0; i < cardinality; i++) {
-    tokens[cardinality - 1 - i] = contextTracker->getToken(i);
-    logger << DEBUG << "Cached tokens[" << cardinality - 1 - i << "] = " << tokens[cardinality - 1 - i] << endl;
-  }
+  std::vector<std::string> tokens = context_tokens();
 
   // Generate list of prefix completition candidates.
   //
@@ -280,27 +343,7 @@ Prediction SmoothedNgramTriePredictor::predict(const size_t max_partial_predicti
     logger << DEBUG << "------------------" << endl;
     logger << DEBUG << "w_i: " << tokens[cardinality - 1] << endl;
 
-    double probability = 0;
-    for (int k = 0; k < cardinality; k++) {
-      double numerator = count(tokens, 0, k+1);
-      // reuse cached unigrams_counts_sum to speed things up
-      double denominator = (k == 0 ? unigrams_counts_sum : count(tokens, -1, k));
-      // probably not a proper fix, but done to go around some cases where denominator < numerator
-      // double frequency = ((denominator > 0) ? (numerator / denominator) : 0);
-      double frequency = ((denominator > 0 && denominator >= numerator) ? (numerator / denominator) : 0);
-      probability += deltas[k] * frequency;
-
-      logger << DEBUG << "numerator:   " << numerator << endl;
-      logger << DEBUG << "denominator: " << denominator << endl;
-      logger << DEBUG << "frequency:   " << frequency << endl;
-      logger << DEBUG << "delta:       " << deltas[k] << endl;
-
-      // for some sanity checks
-      // these assertions fail occasionally. to fix, the calculation of frequency was adjusted above
-      //assert(numerator <= denominator);
-      assert(frequency <= 1);
-    }
-
+    double const probability = this->probability(tokens, unigrams_counts_sum);
     logger << DEBUG << "____________" << endl;
     logger << DEBUG << "probability: " << probability << endl;
 

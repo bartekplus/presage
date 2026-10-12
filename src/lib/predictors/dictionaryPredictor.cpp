@@ -74,6 +74,11 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
     std::string prefixLower(prefix);
     Utility::strtolower(prefixLower);
 
+    // With no prefix, no user word is related to the text: they would only fill
+    // next-word predictions with unrelated words.
+    if (prefixLower.empty())
+        return result;
+
     std::ifstream dictionary_file;
     dictionary_file.open(dictionary_path.c_str());
     if(!dictionary_file)
@@ -92,11 +97,14 @@ Prediction DictionaryPredictor::predict(const size_t max_partial_predictions_siz
 
         // A word that starts with the prefix is a completion: distance 0, else a long word
         // stays buried until it is almost fully typed. The chars still to type only break
-        // ties. Any other word keeps the whole-word distance, as a typo correction.
-        bool const completion = !prefixLower.empty() && candidateLower.compare(0, prefixLower.size(), prefixLower) == 0;
-        int const distance = completion ? 0 : levenshteinDistance(prefixLower, candidateLower);
+        // ties. Any other word must be a typo of the word's start, else it is not offered.
+        bool const completion = candidateLower.compare(0, prefixLower.size(), prefixLower) == 0;
+        int const distance = completion ? 0 : typoDistance(prefixLower, candidateLower);
+        if (distance < 0) {
+            continue;
+        }
         double const remaining = completion ? candidateLower.size() - prefixLower.size() : 0;
-        double const cProbability = (probability) / exp(std::max(0, distance) + 0.01 * remaining);
+        double const cProbability = (probability) / exp(distance + 0.01 * remaining);
         Suggestion current_suggestion{candidate, cProbability};
 
         if (pq.size() < max_partial_predictions_size) {
@@ -130,6 +138,21 @@ void DictionaryPredictor::update (const Observable* var)
 {
     logger << DEBUG << "About to invoke dispatcher: " << var->get_name () << " - " << var->get_value() << endl;
     dispatcher.dispatch (var);
+}
+
+int DictionaryPredictor::typoDistance(const std::string& prefix, const std::string& word) const {
+    // shortcut: distances count bytes, so a non-ASCII letter typo costs 2; count code points if that matters.
+    size_t const n = prefix.size();
+    int const allowed = n >= 6 ? 2 : (n >= 4 ? 1 : 0);
+    if (allowed == 0) {
+        return -1;
+    }
+    int best = allowed + 1;
+    // The closest start of the word, from 2 bytes shorter to 2 bytes longer than the prefix.
+    for (size_t len = (n > 2 ? n - 2 : 1); len <= std::min(n + 2, word.size()); ++len) {
+        best = std::min(best, levenshteinDistance(prefix, word.substr(0, len)));
+    }
+    return best <= allowed ? best : -1;
 }
 
 /**

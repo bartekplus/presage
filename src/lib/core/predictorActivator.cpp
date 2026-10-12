@@ -25,6 +25,8 @@
 #include "predictorActivator.h"
 #include "utility.h"
 
+#include <set>
+
 const char* PredictorActivator::LOGGER = "Presage.PredictorActivator.LOGGER";
 const char* PredictorActivator::PREDICT_TIME = "Presage.PredictorActivator.PREDICT_TIME";
 const char* PredictorActivator::MAX_PARTIAL_PREDICTION_SIZE = "Presage.PredictorActivator.MAX_PARTIAL_PREDICTION_SIZE";
@@ -74,10 +76,31 @@ Prediction PredictorActivator::predict(unsigned int multiplier, const char** fil
 
     PredictorRegistry::Iterator it = predictorRegistry->iterator();
     Predictor* predictor = 0;
+    std::vector<Predictor*> predictors;
     while (it.hasNext()) {
 	predictor = it.next();
 	logger << DEBUG << "Invoking predictor: " << predictor->getName() << endl;
 	predictions.push_back(predictor->predict(max_partial_prediction_size * multiplier, filter));
+	predictors.push_back(predictor);
+    }
+
+    // Each predictor can also score the words that only other predictors offered,
+    // e.g. the n-gram model ranks the speller corrections by frequency.
+    for (size_t i = 0; i < predictors.size(); i++) {
+	std::set<std::string> seen;
+	for (size_t k = 0; k < predictions[i].size(); k++) {
+	    seen.insert(predictions[i].getSuggestion(k).getWord());
+	}
+	std::vector<std::string> others;
+	for (size_t j = 0; j < predictions.size(); j++) {
+	    for (size_t k = 0; j != i && k < predictions[j].size(); k++) {
+		std::string const word = predictions[j].getSuggestion(k).getWord();
+		if (seen.insert(word).second) {
+		    others.push_back(word);
+		}
+	    }
+	}
+	predictors[i]->rescore(predictions[i], others);
     }
 
     // ...then merge predictions into a single one...
